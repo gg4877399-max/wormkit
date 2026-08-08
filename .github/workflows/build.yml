@@ -20,19 +20,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libffi-dev \
-            libssl-dev \
-            python3-pip \
-            python3-dev \
-            build-essential \
-            git \
-            openjdk-17-jdk \
-            unzip \
-            wget \
-            autoconf \
-            automake \
-            libtool \
-            pkg-config
+            git zip unzip openjdk-17-jdk \
+            python3-pip autoconf automake libtool \
+            pkg-config zlib1g-dev libncurses6 \
+            cmake libffi-dev libssl-dev
           pip install --upgrade pip
           pip install buildozer cython virtualenv
 
