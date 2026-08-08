@@ -20,60 +20,41 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            git zip unzip openjdk-17-jdk \
-            python3-pip autoconf automake libtool \
-            pkg-config zlib1g-dev libncurses-dev \
-            cmake libffi-dev libssl-dev
-          pip install --upgrade pip buildozer cython virtualenv
-
-      - name: Check library compatibility
-        run: |
-          echo "🔍 Checking build environment compatibility..."
-          echo ""
-          echo "=== Java ==="
-          java -version 2>&1 || echo "❌ Java not found"
-          echo ""
-          echo "=== Python ==="
-          python3 --version
-          echo ""
-          echo "=== PIP Packages ==="
-          pip list 2>/dev/null | grep -iE "buildozer|cython|kivy|python-for-android|jnius|pyjnius|android" || echo "⚠️  No Android/Kivy packages pre-installed"
-          echo ""
-          echo "=== Build Tools ==="
-          which git zip unzip cmake make 2>&1 || echo "⚠️  Some build tools missing"
-          echo ""
-          echo "=== Buildozer.spec check ==="
-          if [ -f buildozer.spec ]; then
-            echo "✅ buildozer.spec found"
-            echo "--- Requirements ---"
-            grep -E "^requirements\s*=" buildozer.spec || echo "⚠️  No requirements line found"
-            echo "--- Android API ---"
-            grep -E "android.api" buildozer.spec || echo "⚠️  No android.api set"
-            echo "--- SDK path ---"
-            grep -E "android.sdk_path" buildozer.spec || echo "⚠️  No SDK path"
-          else
-            echo "❌ buildozer.spec NOT FOUND — build will fail!"
-            exit 1
-          fi
-          echo ""
-          echo "=== Disk Space ==="
-          df -h / | tail -1
-          echo ""
-          echo "✅ Compatibility check complete"
+            libffi-dev \
+            libssl-dev \
+            python3-pip \
+            python3-dev \
+            build-essential \
+            git \
+            openjdk-17-jdk \
+            unzip \
+            wget \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config
+          pip install --upgrade pip
+          pip install buildozer cython virtualenv
 
       - name: Build APK with Buildozer
         run: |
-          export PATH=$PATH:~/.local/bin
           buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: WormKit-APK
+          name: wormkit-apk
           path: bin/*.apk
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.ref == 'refs/heads/main'
         with:
           files: bin/*.apk
+          tag_name: build-${{ github.run_number }}
+          name: WormKit Build ${{ github.run_number }}
+          body: |
+            Automated build of WormKit APK
+            Build number: ${{ github.run_number }}
+            Commit: ${{ github.sha }}
+          make_latest: true
