@@ -17,7 +17,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           ls -l /dev/kvm
-      - name: Boot emulator and verify
+      - name: Boot emulator and install PUBG
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
@@ -25,5 +25,22 @@ jobs:
           arch: x86_64
           profile: pixel_7
           script: |
-            adb shell getprop sys.boot_completed
+            echo "=== Downloading PUBG Mobile ==="
+            curl -L "https://apkpure.com/pubg-mobile/com.tencent.ig/download" -o pubg.xapk --max-time 600
+            ls -lh pubg.xapk
+            file pubg.xapk
+            echo "=== Unzip XAPK ==="
+            unzip -o pubg.xapk -d pubg_pkg || true
+            ls -lh pubg_pkg/
+            echo "=== Install APK ==="
+            APK=$(ls pubg_pkg/*.apk | head -1)
+            echo "APK: $APK"
+            adb install -r "$APK" || adb install "$APK"
+            echo "=== Push OBB if present ==="
+            if [ -d pubg_pkg/Android/obb ]; then adb push pubg_pkg/Android/obb /sdcard/Android/; fi
+            echo "=== Launch PUBG ==="
+            adb shell monkey -p com.tencent.ig -c android.intent.category.LAUNCHER 1
+            sleep 30
+            echo "=== Check process ==="
+            adb shell pidof com.tencent.ig || adb shell ps | grep tencent
             adb shell dumpsys window windows | grep -i mCurrentFocus | head -5
