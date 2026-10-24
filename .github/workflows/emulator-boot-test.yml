@@ -25,5 +25,13 @@ jobs:
           arch: x86_64
           profile: pixel_7
           script: |
-            adb shell pm list packages | grep -i "vending\|gms" || true
-            bash install-pubg.sh
+            bash playstore-install.sh
+        env:
+          GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
+          GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-screenshots
+          path: screenshots/
