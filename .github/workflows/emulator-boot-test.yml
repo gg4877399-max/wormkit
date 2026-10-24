@@ -25,7 +25,7 @@ jobs:
           arch: x86_64
           profile: pixel_7
           script: |
-            bash playstore-install.sh
+            bash apkpure-install.sh
         env:
           GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
           GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
