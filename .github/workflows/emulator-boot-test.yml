@@ -21,11 +21,13 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          target: google_apis
+          target: google_apis_playstore
           arch: x86_64
           profile: pixel_7
           script: |
             set +e
+            echo "=== Check Play Store presence ==="
+            adb shell pm list packages | grep -i "vending\|gms" || true
             echo "=== Try APKPure direct link ==="
             curl -L -A "Mozilla/5.0 (Linux; Android 10; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36" "https://d.apkpure.com/b/APK/com.tencent.ig?version=latest" -o pubg.bin --max-time 900
             ls -lh pubg.bin
